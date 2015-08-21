@@ -18,26 +18,28 @@ class NZlib implements ZlibProvider {
     static boolean AVAILABLE = false;
 
     static {
-        try {
-            Path tempFile = Files.createTempFile("nzlib", ".so");
-            InputStream in = NZlib.class.getResourceAsStream("/nzlib.so");
-            if (in != null) {
-                try {
-                    Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
-                } finally {
-                    in.close();
+        if (!Boolean.getBoolean("at.yawk.rjoin.nzlib.disable")) {
+            try {
+                Path tempFile = Files.createTempFile("nzlib", ".so");
+                InputStream in = NZlib.class.getResourceAsStream("/nzlib.so");
+                if (in != null) {
+                    try {
+                        Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
+                    } finally {
+                        in.close();
+                    }
+                    try {
+                        System.load(tempFile.toAbsolutePath().toString());
+                        AVAILABLE = true;
+                    } finally {
+                        Files.deleteIfExists(tempFile);
+                    }
+                } else {
+                    log.debug("Failed to load native because /nzlib.so does not exist");
                 }
-                try {
-                    System.load(tempFile.toAbsolutePath().toString());
-                    AVAILABLE = true;
-                } finally {
-                    Files.deleteIfExists(tempFile);
-                }
-            } else {
-                log.debug("Failed to load native because /nzlib.so does not exist");
+            } catch (IOException e) {
+                log.debug("Failed to load native", e);
             }
-        } catch (IOException e) {
-            log.debug("Failed to load native", e);
         }
     }
 

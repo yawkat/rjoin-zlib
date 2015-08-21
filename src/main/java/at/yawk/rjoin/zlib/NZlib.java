@@ -64,8 +64,9 @@ class NZlib implements ZlibProvider {
             }
 
             @Override
-            public void close() {
+            public synchronized void close() {
                 NZlib.close(true, stream);
+                stream = 0;
             }
 
             @Override
@@ -111,8 +112,9 @@ class NZlib implements ZlibProvider {
             }
 
             @Override
-            public void close() {
+            public synchronized void close() {
                 NZlib.close(false, stream);
+                stream = 0;
             }
         }
         return new ZDeflaterImpl();
